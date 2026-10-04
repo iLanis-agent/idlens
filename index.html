@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IdLens - what is inside this ID</title>
+<meta name="description" content="Paste a UUID, ULID, MongoDB ObjectId or snowflake ID and see its version, creation time, counters and random bits.">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#0a1020; color:#eef3ff; line-height:1.6; }
+  .wrap { max-width:680px; margin:0 auto; padding:48px 20px 60px; }
+  .logo { font-size:46px; font-weight:800; } .logo span { color:#93c5fd; }
+  .tag { font-size:19px; margin-top:10px; color:#dbe4fb; }
+  .cta { display:inline-block; margin-top:26px; background:#93c5fd; color:#0a1020; font-weight:700; padding:14px 30px; border-radius:12px; text-decoration:none; }
+  h2 { font-size:21px; margin:40px 0 10px; } li { color:#b8c5e8; margin-bottom:8px; } ul { margin-left:20px; }
+  .demo { margin-top:26px; background:#121c36; border-radius:14px; padding:18px; } .demo b { color:#93c5fd; }
+  footer { margin-top:50px; font-size:13px; color:#8794bd; } a { color:#93c5fd; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Id<span>Lens</span></div>
+  <div class="tag">That ID knows when it was made.</div>
+  <a class="cta" href="app.html">Open the app</a>
+  <div class="demo">The UUID <b>017F22E2-79B0-7CC3-98C4-DC0C0C07398F</b> is a version 7 ID created at <b>2022-02-22 19:22:22 UTC</b>. A random version 4 UUID tells you nothing.</div>
+  <h2>What it does</h2>
+  <ul><li>Detects UUID, ULID, ObjectId and snowflake IDs</li><li>UUID version, variant, clock sequence and node; v1, v6 and v7 creation time</li><li>Snowflake read both ways, Discord and original Twitter layout</li><li>Creation time in UTC and how long ago</li></ul>
+  <footer>Follows RFC 9562 and the ULID, MongoDB, Discord and Twitter Snowflake sources. Static, client-side, nothing stored or sent. <a href="https://github.com/iLanis-agent/idlens">Source</a></footer>
+</div>
+</body>
+</html>
