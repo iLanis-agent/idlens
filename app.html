@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IdLens - what is inside this ID</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#0a1020; color:#eef3ff; line-height:1.5; }
+  .wrap { max-width:700px; margin:0 auto; padding:26px 16px 50px; }
+  h1 { font-size:28px; } h1 span { color:#93c5fd; }
+  .sub { color:#b9c5e6; margin:6px 0 16px; }
+  .card { background:#121c36; border-radius:14px; padding:14px; margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+  label { font-size:12px; color:#b9c5e6; display:block; margin-bottom:3px; }
+  input,select { width:100%; background:#0a1020; color:#eef3ff; border:1px solid #3d4a73; border-radius:8px; padding:8px; font-size:15px; font-family:inherit; }
+  button { background:#1e40af; color:#eef3ff; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; margin-right:6px; margin-top:10px; }
+  table { width:100%; border-collapse:collapse; } td,th { text-align:left; padding:8px 4px; border-bottom:1px solid #2c3858; } th { font-size:12px; color:#b9c5e6; font-weight:600; }
+  td.v { font-size:22px; font-weight:800; color:#93c5fd; } tr.me td.v { color:#eef3ff; }
+  .stats { display:flex; gap:22px; flex-wrap:wrap; margin-top:12px; } .stats b { display:block; font-size:20px; } .muted { color:#b9c5e6; font-size:13px; }
+  .err { color:#ff9c8a; } .note { font-size:12.5px; color:#8794bd; margin-top:6px; }
+
+  td.v { font-size:17px; } td, th { font-size:14px; } .bar { height:10px; background:#0a1020; border-radius:6px; overflow:hidden; margin-top:6px; } .bar i { display:block; height:100%; background:#93c5fd; } .bar i.over { background:#ff7b72; } .no { color:#ff9c8a; }
+  .cb { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:14px; color:#eef3ff; } .cb input { width:auto; } .big { font-family:monospace; font-size:26px; font-weight:800; color:#93c5fd; } td.v.m { font-family:monospace; }
+  textarea { width:100%; background:#0a1020; color:#eef3ff; border:1px solid #3d4a73; border-radius:8px; padding:8px; font-size:14px; font-family:monospace; min-height:110px; } .ok { color:#86efac; font-weight:700; } .no { color:#ff9c8a; } td.m { font-family:monospace; } .chip { display:inline-block; font-family:monospace; background:#0a1020; border-radius:6px; padding:2px 6px; margin:2px 4px 2px 0; }
+  textarea { width:100%; background:#0a1020; color:#eef3ff; border:1px solid #3d4a73; border-radius:8px; padding:8px; font-size:13px; font-family:monospace; min-height:130px; } .badge { display:inline-block; font-weight:800; padding:4px 12px; border-radius:20px; background:#0a1020; } .bar { height:14px; background:#0a1020; border-radius:8px; position:relative; margin:12px 0 6px; overflow:hidden; } .bar i.f { position:absolute; left:0; top:0; bottom:0; background:#3b82f6; } .bar i.n { position:absolute; top:0; bottom:0; width:3px; background:#fff; }
+  .seg { display:inline-block; height:22px; background:#3b82f6; border-radius:4px; margin:2px 2px 2px 0; vertical-align:middle; } .seg.last { background:#1e40af; } .chip { display:inline-block; font-family:monospace; background:#0a1020; border-radius:6px; padding:2px 8px; margin:2px 4px 2px 0; font-size:16px; }
+.val{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all;background:#0a1020;border-radius:6px;padding:6px 8px;display:block;margin:3px 0 8px}.k{font-size:12px;color:#8794bd;margin-top:6px}.tag2{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-left:6px;background:#1e40af;color:#fff}.tag3{background:#b45309}.lay{border-top:1px solid #2c3858;margin-top:10px;padding-top:6px}textarea,input{font-family:ui-monospace,Menlo,monospace}.warn{color:#fbbf24;font-size:13px;margin-top:6px}</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Id<span>Lens</span></h1>
+  <div class="sub">Paste a UUID, ULID, MongoDB ObjectId or numeric snowflake ID. IdLens says which one it is and shows what is inside: the version, the creation time, the counters and the random part.</div>
+  <div class="card">
+    <label>ID</label>
+    <input id="x" spellcheck="false" autocomplete="off">
+    <div><button id="p1">UUIDv7</button><button id="p2">UUIDv1</button><button id="p3">UUIDv4</button><button id="p4">ULID</button><button id="p5">ObjectId</button><button id="p6">Discord ID</button></div>
+    <div id="err" class="err" style="margin-top:6px"></div>
+  </div>
+  <div class="card" id="outcard"><div id="out"></div></div>
+  <div class="note">Layouts follow RFC 9562 (versions 1, 6 and 7, variant and version tables; read directly, the page cut off before its appendix test vectors), the ULID specification, MongoDB's ObjectId documentation, Discord's snowflake reference and Twitter's original Snowflake source (the epoch and bit widths in IdWorker.scala). A numeric ID can belong to either snowflake family, so both readings are shown; the one with a plausible date (2010 to tomorrow) is marked. Times are UTC. IDs do not prove when something was created: a client can set any timestamp. Not covered: KSUID, Sonyflake and other families, UUID v2 and v8 contents. Runs in your browser, nothing is sent anywhere.</div>
+</div>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var D = window.IdLens, $ = function (i) { return document.getElementById(i); };
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function rel(ms) {
+    var diff = Date.now() - Number(ms), fut = diff < 0, s = Math.abs(diff) / 1000, u = [['year', 31557600], ['day', 86400], ['hour', 3600], ['minute', 60], ['second', 1]];
+    for (var i = 0; i < u.length; i++) if (s >= u[i][1] || i === u.length - 1) { var v = Math.floor(s / u[i][1]); return v + ' ' + u[i][0] + (v === 1 ? '' : 's') + (fut ? ' from now' : ' ago'); }
+  }
+  function plausible(ms) { var n = Number(ms); return n >= Date.UTC(2010, 0, 1) && n <= Date.now() + 86400000; }
+  function when(t) {
+    if (!t.iso) return '<span class="val">outside the range a date can show</span>';
+    return '<span class="val">' + esc(t.iso) + (t.subMs100ns ? ' + ' + t.subMs100ns + ' x 100 ns' : '') + '</span><div class="muted">' + rel(t.ms) + '. From ' + esc(t.source) + '.</div>';
+  }
+  function row(k, v) { return '<div class="k">' + esc(k) + '</div><span class="val">' + esc(v) + '</span>'; }
+  var PRE = { p1: '017F22E2-79B0-7CC3-98C4-DC0C0C07398F', p2: 'C232AB00-9414-11EC-B3C8-9F6BDECED846', p3: null, p4: '01ARZ3NDEKTSV4RRFFQ69G5FAV', p5: '507f1f77bcf86cd799439011', p6: '175928847299117063' };
+  Object.keys(PRE).forEach(function (k) { $(k).onclick = function () { $('x').value = PRE[k] || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'f47ac10b-58cc-4372-a567-0e02b2c3d479'); run(); }; });
+  function run() {
+    var r = D.decode($('x').value), o = $('out');
+    if (r.error) { $('err').textContent = $('x').value.trim() ? r.error : ''; o.innerHTML = '<div class="muted">' + (r.error && !$('x').value.trim() ? esc(r.error) : 'Fix the input above.') + '</div>'; return; }
+    $('err').textContent = '';
+    var h = '';
+    if (r.type === 'uuid') {
+      h += '<h2 style="margin:0 0 6px;font-size:15px">UUID' + (r.special ? '<span class="tag2">' + r.special + '</span>' : '<span class="tag2">version ' + r.version + '</span>') + '</h2>' + row('Canonical form', r.canonical);
+      if (!r.special) { h += row('Version', r.version + ': ' + r.versionName) + row('Variant', r.variant); if (r.timestamp) h += '<div class="k">Created</div>' + when(r.timestamp); }
+      if (r.clockSeq !== undefined) h += row('Clock sequence', r.clockSeq) + row('Node', r.node);
+      if (r.randA !== undefined) h += row('rand_a (12 bits)', r.randA) + row('rand_b (62 bits, variant bits removed)', r.randB);
+    } else if (r.type === 'ulid') h += '<h2 style="margin:0 0 6px;font-size:15px">ULID</h2>' + row('Canonical form', r.canonical) + '<div class="k">Created</div>' + when(r.timestamp) + row('Randomness (80 bits, hex)', r.randomness);
+    else if (r.type === 'objectid') h += '<h2 style="margin:0 0 6px;font-size:15px">MongoDB ObjectId</h2>' + row('Canonical form', r.canonical) + '<div class="k">Created</div>' + when(r.timestamp) + row('Random value (5 bytes)', r.randomValue) + row('Counter (3 bytes)', r.counter);
+    else if (r.type === 'snowflake') {
+      h += '<h2 style="margin:0 0 6px;font-size:15px">Snowflake ID</h2>' + row('Value', r.canonical);
+      r.layouts.forEach(function (l) {
+        var ok = plausible(l.timestamp.ms);
+        h += '<div class="lay"><b>' + esc(l.name) + '</b><span class="tag2' + (ok ? '' : ' tag3') + '">' + (ok ? 'plausible date' : 'date looks wrong') + '</span><div class="k">Created</div>' + when(l.timestamp);
+        h += l.name === 'Discord' ? row('Worker, process, increment', l.workerId + ', ' + l.processId + ', ' + l.increment) : row('Datacenter, worker, sequence', l.datacenterId + ', ' + l.workerId + ', ' + l.sequence);
+        h += '<div class="muted">' + esc(l.epoch) + '</div></div>';
+      });
+    }
+    (r.notes || []).forEach(function (n) { h += '<div class="warn">' + esc(n) + '</div>'; });
+    o.innerHTML = h;
+  }
+  $('x').oninput = run;
+  $('p1').onclick();
+})();
+</script>
+</body>
+</html>
